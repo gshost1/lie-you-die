@@ -1,0 +1,6 @@
+{
+  "name": "users",
+  "private": true,
+  "type": "module",
+  "scripts": { "test": "bun test", "codegen": "bun scripts/codegen.ts" }
+}

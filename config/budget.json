@@ -1,0 +1,50 @@
+{
+  "_comment": "Spend limits per Ramp Router account (src/budget.ts). limitUsd = what this benchmark may spend from now on, counted in runs/ledger.jsonl; set below the account's remaining credit (2026-10-14 evening: A $25.49, B $14.72) to absorb estimate error and, on B, the user's other apps (~$0.37/day). Paid batches refuse to start while confirmed is false.",
+  "confirmed": true,
+  "_confirmed": "Key-to-account mapping confirmed 2026-10-14 by spending a few cents on each key and reading back each account's per-key spend.",
+  "marginUsd": 1.0,
+  "_marginUsd": "Reserved per in-flight run: a worst-case single run (an impossible task looping to max steps on Sonnet). With concurrency N, N \u00d7 margin is held back.",
+  "accounts": {
+    "A": {
+      "limitUsd": 22,
+      "keys": [
+        "ROUTER_API_KEY",
+        "ROUTER_API_KEY_4"
+      ]
+    },
+    "B": {
+      "limitUsd": 11,
+      "keys": [
+        "ROUTER_API_KEY_2",
+        "ROUTER_API_KEY_3"
+      ]
+    }
+  },
+  "prices": {
+    "_comment": "USD per million tokens, used only when a run has no Router-reported cost. All UNVERIFIED and set on the high side so the budget stop errs early.",
+    "claude-sonnet-5-5": {
+      "input": 2,
+      "output": 10,
+      "cacheRead": 0.1,
+      "cacheWrite": 2.5
+    },
+    "kimi-k3": {
+      "input": 3,
+      "output": 12,
+      "cacheRead": 0.3,
+      "cacheWrite": 3
+    },
+    "gpt-6-sol": {
+      "input": 2,
+      "output": 10,
+      "cacheRead": 0.2,
+      "cacheWrite": 2.5
+    },
+    "jev-1.13.0": {
+      "input": 2,
+      "output": 10,
+      "cacheRead": 0.2,
+      "cacheWrite": 2.5
+    }
+  }
+}

@@ -1,0 +1,4 @@
+# Harness tests live in test/. Task repos and hidden checks have their own tests
+# that must never be picked up from the harness root.
+[test]
+root = "test"

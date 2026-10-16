@@ -1,0 +1,278 @@
+{
+  "_comment": "Headless invocations for the agents under test. Flags checked 2026-10-14 against each agent's docs (pi docs/cli+json+models, omp package source, opencode.ai/docs/cli, docs.factory.ai droid-exec + BYOK); not yet exercised end to end. Placeholders: {prompt} {model} {baseUrl} {apiKey} {providerApi} {workdir} {promptFile} {outDir}. {providerApi} is the agent's name for the model profile's API (agent.apis[profile.api]); an agent without an entry for that API cannot run on that model. Files are written under the run's private HOME (~ = that HOME). `output` selects the stdout parser (src/agents/output.ts) that extracts the final report and token usage.",
+  "agents": {
+    "pi": {
+      "verified": false,
+      "install": "npm install -g @earendil-works/pi-coding-agent",
+      "command": [
+        "pi",
+        "--mode",
+        "json",
+        "--no-session",
+        "--provider",
+        "lyd",
+        "--model",
+        "{model}",
+        "--tools",
+        "read,bash,edit,write,grep,find",
+        "{prompt}"
+      ],
+      "env": {
+        "PI_TELEMETRY": "0"
+      },
+      "files": {
+        "~/.pi/agent/models.json": {
+          "providers": {
+            "lyd": {
+              "baseUrl": "{baseUrl}",
+              "api": "{providerApi}",
+              "apiKey": "{apiKey}",
+              "models": [
+                {
+                  "id": "{model}"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "timeoutSec": 1800,
+      "output": "pi-json",
+      "apis": {
+        "chat": "openai-completions",
+        "responses": "openai-responses"
+      },
+      "_apis": "pi-ai api names. openai-responses against Router is UNVERIFIED."
+    },
+    "omp": {
+      "verified": false,
+      "install": "npm install -g @oh-my-pi/pi-coding-agent",
+      "command": [
+        "omp",
+        "--mode",
+        "json",
+        "--no-session",
+        "--provider",
+        "lyd",
+        "--model",
+        "{model}",
+        "{prompt}"
+      ],
+      "env": {},
+      "files": {
+        "~/.omp/agent/models.yml": {
+          "providers": {
+            "lyd": {
+              "baseUrl": "{baseUrl}",
+              "api": "{providerApi}",
+              "apiKey": "{apiKey}",
+              "models": [
+                {
+                  "id": "{model}"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "timeoutSec": 1800,
+      "_files": "omp reads models.yml; YAML is a superset of JSON so the pi provider block is written as-is. Schema assumed identical to pi's (omp is a pi fork): verify on first run.",
+      "output": "pi-json",
+      "apis": {
+        "chat": "openai-completions",
+        "responses": "openai-responses"
+      },
+      "_apis": "pi-ai api names. openai-responses against Router is UNVERIFIED."
+    },
+    "opencode": {
+      "verified": false,
+      "install": "npm install -g opencode-ai",
+      "command": [
+        "opencode",
+        "run",
+        "--format",
+        "json",
+        "--auto",
+        "--model",
+        "lyd/{model}",
+        "{prompt}"
+      ],
+      "env": {
+        "OPENCODE_DISABLE_AUTOUPDATE": "1",
+        "OPENCODE_DISABLE_LSP_DOWNLOAD": "1"
+      },
+      "files": {
+        "~/.config/opencode/opencode.json": {
+          "$schema": "https://opencode.ai/config.json",
+          "provider": {
+            "lyd": {
+              "npm": "{providerApi}",
+              "options": {
+                "baseURL": "{baseUrl}",
+                "apiKey": "{apiKey}"
+              },
+              "models": {
+                "{model}": {}
+              }
+            }
+          }
+        }
+      },
+      "timeoutSec": 1800,
+      "output": "opencode-json",
+      "apis": {
+        "chat": "@ai-sdk/openai-compatible",
+        "responses": "@ai-sdk/openai"
+      },
+      "_apis": "AI SDK provider package; @ai-sdk/openai calls the Responses API by default. Responses against Router is UNVERIFIED."
+    },
+    "droid": {
+      "verified": false,
+      "install": "curl -fsSL https://app.factory.ai/cli | sh",
+      "modelRoute": "customModels",
+      "_modelRoute": "customModels: droid talks to the shared DO endpoint like the other agents (decided). factory-native: Factory-hosted model, set factoryNativeModel and switch the command's --model.",
+      "factoryNativeModel": "UNCONFIRMED",
+      "command": [
+        "droid",
+        "exec",
+        "--auto",
+        "high",
+        "--output-format",
+        "stream-json",
+        "--model",
+        "custom:{model}-0",
+        "--restrict-tools",
+        "Read,LS,Execute,Edit,Create,ApplyPatch,Grep,Glob,TodoWrite",
+        "--disabled-tools",
+        "WebSearch,FetchUrl,ConnectApp,SlackPostFile,SlackPostMessage,SlackCreateOrUpdateCodeChannel,SlackArchiveCodeChannel,SlackListChannels,store_agent_readiness_report,get_agent_effectiveness_usage,render_agent_effectiveness_report,ListEvalRuns,ListDatasets,ReadDataset,ReadEvalRun,CreateEvalRun,ListEvalPresets,SaveEvalPreset,CreateDataset,ListAutomationTemplates,CreateAutomation,ListAutomations,ReadAutomation,EditAutomation,DeleteAutomation,RunAutomation",
+        "{prompt}"
+      ],
+      "env": {
+        "FACTORY_API_KEY": "$FACTORY_API_KEY"
+      },
+      "files": {
+        "~/.factory/settings.json": {
+          "customModels": [
+            {
+              "model": "{model}",
+              "displayName": "{model}",
+              "baseUrl": "{baseUrl}",
+              "apiKey": "{apiKey}",
+              "provider": "{providerApi}",
+              "maxOutputTokens": 16384
+            }
+          ],
+          "cloudSessionSync": false
+        }
+      },
+      "timeoutSec": 1800,
+      "_command": "Custom model id = custom:<displayName with spaces\u2192dashes>-<index in customModels>.",
+      "output": "droid-stream-json",
+      "apis": {
+        "chat": "generic-chat-completion-api",
+        "responses": "openai"
+      },
+      "_apis": "customModels provider; droid's 'openai' provider speaks the Responses API. Against Router UNVERIFIED.",
+      "_output": "stream-json (switched 2026-10-14 from json, which carries only the final result: no tool calls for exec evidence, and an empty result with kimi-k2.6). Event shape UNVERIFIED; parsers are lenient (src/agents/output.ts, src/agents/transcript.ts).",
+      "_restrictTools": "Allowlist (2026-10-14, user decision): coding tools only. Drops WebSearch, FetchUrl, ConnectorSearch (Slack/GitHub/... connectors), MCP servers, automations, missions, subagents, Skill and ToolSearch: these run through Factory's servers, a side channel around the no-internet VM. IDs are the model-facing names; checked with `droid exec --restrict-tools ... --list-tools` on local droid 0.232.0 (unknown IDs fail the run). Not yet run on the VM's droid 0.241.1.",
+      "preflight": [
+        "droid",
+        "exec",
+        "--auto",
+        "high",
+        "--model",
+        "custom:{model}-0",
+        "--restrict-tools",
+        "Read,LS,Execute,Edit,Create,ApplyPatch,Grep,Glob,TodoWrite",
+        "--disabled-tools",
+        "WebSearch,FetchUrl,ConnectApp,SlackPostFile,SlackPostMessage,SlackCreateOrUpdateCodeChannel,SlackArchiveCodeChannel,SlackListChannels,store_agent_readiness_report,get_agent_effectiveness_usage,render_agent_effectiveness_report,ListEvalRuns,ListDatasets,ReadDataset,ReadEvalRun,CreateEvalRun,ListEvalPresets,SaveEvalPreset,CreateDataset,ListAutomationTemplates,CreateAutomation,ListAutomations,ReadAutomation,EditAutomation,DeleteAutomation,RunAutomation",
+        "--list-tools",
+        "--output-format",
+        "json"
+      ],
+      "_preflight": "Run as the agent user on the same VM before the agent (no model call). Its output (tools with currentlyAllowed) is saved as preflight.json: the stream-json init event lists every registered tool even with --restrict-tools, so it cannot show what the model is offered.",
+      "_disabledTools": "Denylist on top of the --restrict-tools allowlist (2026-10-14, user decision): integration/eval/automation tools from droid 0.241.1's init event, which --list-tools does not show. No documented flag disables integrations. Unknown IDs make droid exit with 'Unknown tool identifier'.",
+      "_cloudSessionSync": "false: run transcripts are not mirrored to Factory web (default true)."
+    },
+    "lyd-agent": {
+      "verified": false,
+      "install": "binary",
+      "binary": "agents/lyd-agent/dist/lyd-agent-linux-{arch}",
+      "_binary": "Uploaded to /usr/local/bin/lyd-agent on each run VM ({arch} = x64|arm64 from the VM's uname -m), so lyd-agent changes need no snapshot rebuild. Build with agents/lyd-agent/build.sh. Not yet run on Linux.",
+      "apis": {
+        "chat": "chat",
+        "responses": "responses"
+      },
+      "command": [
+        "lyd-agent",
+        "--base-url",
+        "{baseUrl}",
+        "--model",
+        "{model}",
+        "--api",
+        "{providerApi}",
+        "--api-key-env",
+        "LYD_MODEL_KEY",
+        "--workdir",
+        "{workdir}",
+        "--prompt-file",
+        "{promptFile}",
+        "--report",
+        "{outDir}/report.md",
+        "--log",
+        "{outDir}/lyd.jsonl",
+        "--exec-log",
+        "{outDir}/exec.jsonl"
+      ],
+      "env": {
+        "LYD_MODEL_KEY": "{apiKey}"
+      },
+      "files": {},
+      "artifacts": {
+        "log": "{outDir}/lyd.jsonl",
+        "execLog": "{outDir}/exec.jsonl"
+      },
+      "_artifacts": "Pulled after the run. {outDir} is outside {workdir}, but the model's bash can still write there, so the agent-reported exec log is self-reported evidence, kept alongside (not instead of) the root-side tracer/poller.",
+      "timeoutSec": 1800,
+      "output": "lyd"
+    }
+  },
+  "defaultModel": "kimi-k3",
+  "models": {
+    "kimi-k3": {
+      "baseUrl": "https://api.router.com/v1",
+      "model": "kimi-k3",
+      "api": "responses",
+      "apiKeyEnv": "ROUTER_API_KEY_2",
+      "keyMode": "edge",
+      "_note": "Ramp Router, account 2 (separate credit from the Sonnet/judge account). Listed on all 4 Router accounts 2026-10-14. kimi-k3 over Router's Responses API is UNVERIFIED (Router has no chat/completions)."
+    },
+    "kimi-k3-do": {
+      "baseUrl": "https://inference.do-ai.run/v1",
+      "model": "kimi-k3",
+      "api": "chat",
+      "apiKeyEnv": "MODEL_API_KEY",
+      "keyMode": "edge",
+      "_note": "DigitalOcean: credit removed 2026-10-14; kept for reference. DigitalOcean inference. The user's DO tier 403s all Claude/GPT models; other open-weight ids that answered 200 on 2026-10-14: deepseek-v4-pro, qwen3.8-max, mimo-v2.5-pro."
+    },
+    "claude-sonnet-5-5": {
+      "baseUrl": "https://api.router.com/v1",
+      "model": "claude-sonnet-5-5",
+      "api": "responses",
+      "apiKeyEnv": "ROUTER_API_KEY",
+      "apiKeyEnvFallback": "JEV_API_KEY",
+      "keyMode": "edge",
+      "_note": "Ramp Router. Only /v1/responses exists (/v1/chat/completions is 404, checked 2026-10-14). Router returns usage.cost; account 1 also pays for Jev and the GPT judge; accounts 2-4 (ROUTER_API_KEY_2..4) are spare credit."
+    },
+    "beam": {
+      "baseUrl": "https://api.reflection.ai/openai/v1",
+      "model": "Beam-1.0-501B-A23B",
+      "api": "chat",
+      "apiKeyEnv": "REFLECTION_API_KEY",
+      "keyMode": "edge",
+      "free": true,
+      "_note": "Reflection AI beta (free; 100M tokens/day, 20k requests/day as of 2026-10-15). 1M context, 128K max output. OpenAI-compatible Chat Completions only; reasoning always on (default effort max); assistant messages must carry reasoning_content back; unknown params return 400. Chat API was 502 for hours on 2026-10-15. Not on Router, so outside the key pool."
+    }
+  },
+  "_keyMode": "edge: on Freestyle VMs the key is injected at the Freestyle edge as an Authorization header for the profile's baseUrl host, and the VM only sees a placeholder. env: the key is passed to the agent process (local smoke runs)."
+}

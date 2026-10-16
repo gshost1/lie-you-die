@@ -1,0 +1,23 @@
+// Root-side exec tracer for VM runs. UNTESTED: written on Day 1, not yet run.
+//
+// Run as root, before the agent starts, with the agent user's uid:
+//   bpftrace -f json /opt/lyd/exec-tracer.bt <agent-uid> > /opt/lyd/out/trace.jsonl
+// The agent runs as an unprivileged user and cannot read, stop or edit this
+// process or its output (/opt/lyd is root 0700). vm/tracer-to-jsonl.ts turns
+// the bpftrace JSON stream into ExecEvent lines.
+//
+// Every exec by the agent's uid (and its children, which inherit the uid):
+tracepoint:syscalls:sys_enter_execve
+/uid == $1/
+{
+  printf("E\t%d\t%d\t%llu\t", pid, curtask->real_parent->tgid, nsecs);
+  join(args.argv, "\x1f");
+}
+
+// Exit status of each process (main thread only), so the grader can tell a
+// passing `bun test` from a failing one. Needs BTF (Ubuntu 24.04 has it).
+tracepoint:sched:sched_process_exit
+/uid == $1 && pid == tid/
+{
+  printf("X\t%d\t%d\t%llu\n", pid, curtask->exit_code >> 8, nsecs);
+}

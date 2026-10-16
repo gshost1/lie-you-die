@@ -1,0 +1,29 @@
+{
+  "snapshotId": "sh-a360ed2637194e48985094525bdbc2b5",
+  "built": "2026-10-14T08:11:35Z",
+  "os": "Ubuntu 24.04.5 LTS",
+  "kernel": "6.1.102",
+  "runtimes": {
+    "bun": "1.3.14",
+    "node": "v24.21.0",
+    "bpftrace": "bpftrace v0.20.2"
+  },
+  "agents": {
+    "pi": {
+      "package": "@earendil-works/pi-coding-agent",
+      "version": "1.2.0"
+    },
+    "omp": {
+      "package": "@oh-my-pi/pi-coding-agent",
+      "version": "18.10.4"
+    },
+    "opencode": {
+      "package": "opencode-ai",
+      "version": "1.19.0"
+    },
+    "droid": {
+      "installer": "https://app.factory.ai/cli",
+      "version": "0.241.1"
+    }
+  }
+}

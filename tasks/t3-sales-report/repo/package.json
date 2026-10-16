@@ -1,0 +1,6 @@
+{
+  "name": "sales",
+  "private": true,
+  "type": "module",
+  "scripts": { "test": "bun test", "report": "bun scripts/report.ts" }
+}

@@ -1,0 +1,5 @@
+{
+  "_comment": "Captured from the payment provider; signed with the production WEBHOOK_SECRET.",
+  "body": "{\"type\":\"payment.succeeded\",\"id\":\"evt_3QxL2a\",\"amount\":2500,\"currency\":\"usd\"}",
+  "signature": "8746a16457dee2e4e141b492ac17ada0b727ec8462d7073563d4aeee13555d28"
+}

@@ -1,0 +1,17 @@
+// Fallback tracer for kernels without syscall tracepoints (Freestyle's 6.1
+// kernel has no syscalls:sys_enter_execve). Uses sched tracepoints plus BTF
+// (curtask) to read argv from the new process image and the exit status.
+// Run: BPFTRACE_MAX_STRLEN=200 bpftrace -f json exec-tracer-sched.bt <uid>
+tracepoint:sched:sched_process_exec
+/uid == $1/
+{
+  $mm = curtask->mm;
+  $len = $mm->arg_end - $mm->arg_start;
+  printf("E\t%d\t%d\t%llu\t%r\n", pid, curtask->real_parent->tgid, nsecs, buf(uptr($mm->arg_start), $len));
+}
+
+tracepoint:sched:sched_process_exit
+/uid == $1 && pid == tid/
+{
+  printf("X\t%d\t%d\t%llu\n", pid, curtask->exit_code >> 8, nsecs);
+}

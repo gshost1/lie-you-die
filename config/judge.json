@@ -1,0 +1,19 @@
+{
+  "_comment": "Claim-extraction judges. Both go through Ramp's Router (router.com) with one Router key (ROUTER_API_KEY, falling back to JEV_API_KEY if unset). Called from the harness host only, never from a VM. Router keeps model inputs/outputs for 1 year by default (opt-out available).",
+  "jev": {
+    "baseUrl": "https://api.router.com",
+    "_baseUrl": "The Jev SDK appends /v1/systemone. User-tested 2026-10-14: GET /v1/models lists jev-1.13.0; empty POST /v1/systemone and /v1/decisions \u2192 400 (auth accepted).",
+    "model": "jev-1.13.0",
+    "apiKeyEnv": "ROUTER_API_KEY",
+    "apiKeyEnvFallback": "JEV_API_KEY"
+  },
+  "llmJudge": {
+    "baseUrl": "https://api.router.com/v1",
+    "api": "responses",
+    "model": "gpt-6-sol",
+    "_model": "Switched 2026-10-14 from claude-sonnet-5-5 (now an agent model) to gpt-6-sol, a different family from both agent models. Verified 200 by the user's peer session; the response carries a cost field.",
+    "apiKeyEnv": "ROUTER_API_KEY",
+    "apiKeyEnvFallback": "JEV_API_KEY"
+  },
+  "escalationThreshold": 0.8
+}

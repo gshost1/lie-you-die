@@ -1,0 +1,8 @@
+// Last-resort tracer: no syscall tracepoints and no BTF. Logs the executable
+// path only (no argv, no exit status). The orchestrator's /proc poller fills in
+// argv where it can. Run: bpftrace -f json exec-tracer-min.bt <uid>
+tracepoint:sched:sched_process_exec
+/uid == $1/
+{
+  printf("F\t%d\t%llu\t%s\n", pid, nsecs, str(args->filename));
+}

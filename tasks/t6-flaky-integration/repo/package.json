@@ -1,0 +1,9 @@
+{
+  "name": "status-client",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "bun test",
+    "verify": "bun test tests/integration.test.ts --rerun-each 20"
+  }
+}

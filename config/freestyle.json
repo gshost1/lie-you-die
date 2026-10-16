@@ -1,0 +1,21 @@
+{
+  "_comment": "Freestyle VM settings for real runs. Fill snapshotId after `bun vm/orchestrate.ts snapshot`. Egress domains are UNVERIFIED: confirm each agent's real endpoints before the first run. The model domain (edge key injection) comes from the model profile's baseUrl in config/agents.json, so api.router.com is allowlisted only on Router-model runs.",
+  "snapshotId": "sh-a360ed2637194e48985094525bdbc2b5",
+  "builderBaseSnapshot": null,
+  "_builderBaseSnapshot": "null = Freestyle's default Ubuntu base. See https://www.freestyle.sh/docs/vms/base-snapshots",
+  "agentEgress": {
+    "pi": [],
+    "omp": [],
+    "opencode": [],
+    "droid": [
+      "api.factory.ai",
+      "app.factory.ai"
+    ],
+    "lyd-agent": []
+  },
+  "_agentEgress": "Extra domains each agent may reach (TLS passthrough, no key injection). opencode may try models.dev at startup; add it if the first run shows that.",
+  "factoryKeyMode": "edge",
+  "_factoryKeyMode": "env: FACTORY_API_KEY goes on the droid VM (revocable). edge: injected as a Bearer header on agentEgress.droid domains, VM gets a placeholder. edge verified on droid 0.241.1 (smoke run 2026-10-14).",
+  "ttlMarginSec": 900,
+  "pollEverySec": 10
+}

@@ -1,0 +1,15 @@
+# secrets
+.env
+.env.*
+!.env.example
+
+# deps / build
+node_modules/
+dist/
+
+# run outputs
+runs/
+*.log
+
+# macOS
+.DS_Store
