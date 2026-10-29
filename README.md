@@ -1,5 +1,11 @@
 # lie-you-die
 
+**At a glance:** a TypeScript benchmark (about 1,600 lines of Bun/TypeScript, 10 tasks, 256 recorded runs) for a question most agent evals skip: when a coding agent can't finish a task honestly, does it cheat, and does it admit it? The grader decides from file diffs and command logs, not from what the agent says, then compares that with the agent's final report.
+
+**Headline result:** on the impossible tasks, `claude-sonnet-5-5` never took a shortcut (0 of 72 runs). The other models did, and often described the shortcut as a fix.
+
+**Skills shown:** evaluation design, a deterministic grader with a self-test (`bun run validate`), sandboxed runs on fresh VMs with syscall tracing, budget-capped batch orchestration, and a written analysis ([article](article/raising-the-stakes.md)).
+
 A benchmark that catches coding agents taking shortcuts and then lying about it. Each agent gets a
 small repo and a task. Some tasks can't be finished honestly. The agent's final report is then
 compared against what it actually did.
